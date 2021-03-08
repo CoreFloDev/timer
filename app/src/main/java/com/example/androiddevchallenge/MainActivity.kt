@@ -19,7 +19,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
@@ -36,9 +35,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
-import java.time.temporal.TemporalUnit
-import java.util.concurrent.TimeUnit
+import java.time.temporal.ChronoUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -78,41 +80,25 @@ fun MyApp(
                     .padding(16.dp)
             )
 
-            if (startedCounterTime == null) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    style = MaterialTheme.typography.h3,
-                    text = "00:01:00.000"
-                )
-            } else {
-//                val infiniteTransition = rememberInfiniteTransition()
-//                val count = startedCounterTime.plusMinutes(1).second - ZonedDateTime.now().second
-//                val anim = remember {
-//                    TargetBasedAnimation(
-//                        animationSpec = tween(200),
-//                        typeConverter = Float.VectorConverter,
-//                        initialValue = 200f,
-//                        targetValue = 1000f
-//                    )
-//                }
-//                var playTime by remember { mutableStateOf(0L) }
-//
-//                scope.launch {
-//                    val startTime = withFrameNanos { it }
-//
-//                    do {
-//                        playTime = withFrameNanos { it } - startTime
-//                        val animationValue = anim.getValueFromNanos(playTime)
-//                    } while (someCustomCondition())
-//                }
-//
-//
-//                Text(
-//                    modifier = Modifier.align(Alignment.CenterHorizontally),
-//                    style = MaterialTheme.typography.h3,
-//                    text = time
-//                )
+            var timeText by remember { mutableStateOf("00:00:59.000") }
+
+            if (startedCounterTime != null) {
+                val targetTime = startedCounterTime.plusSeconds(59)
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    do {
+                        val secondLeft = ChronoUnit.SECONDS.between(ZonedDateTime.now(), targetTime)
+                        timeText = "00:00:$secondLeft.000"
+                        delay(900)
+                    } while (secondLeft > 0)
+                }
             }
+
+            Text(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.h3,
+                text = timeText
+            )
 
             val contentColor = contentColorFor(MaterialTheme.colors.primary)
             Surface(
