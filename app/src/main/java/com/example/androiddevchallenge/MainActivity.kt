@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,16 +52,13 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.ui.theme.MyTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 class MainActivity : AppCompatActivity() {
 
-    val mainViewModel by viewModels<MainViewModel>()
+    private val mainViewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +66,6 @@ class MainActivity : AppCompatActivity() {
             MyTheme {
                 MyApp(
                     onClickedOnButton = mainViewModel::buttonClicked,
-                    scope = mainViewModel.scope,
                     startedCounterTime = mainViewModel.triggerStartTime
                 )
             }
@@ -80,8 +77,7 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MyApp(
     onClickedOnButton: () -> Unit = {},
-    startedCounterTime: ZonedDateTime? = null,
-    scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    startedCounterTime: ZonedDateTime? = null
 ) {
     Surface(color = MaterialTheme.colors.background) {
         Column(
@@ -103,7 +99,7 @@ fun MyApp(
             if (startedCounterTime != null) {
                 val targetTime = startedCounterTime.plusSeconds(59)
 
-                scope.launch {
+                LaunchedEffect("test") {
                     do {
                         val secondLeft = ChronoUnit.SECONDS.between(ZonedDateTime.now(), targetTime)
                         timeText = "00:00:$secondLeft.000"

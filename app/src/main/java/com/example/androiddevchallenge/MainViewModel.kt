@@ -19,20 +19,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import java.time.ZonedDateTime
 
 class MainViewModel : ViewModel() {
 
     var triggerStartTime by mutableStateOf<ZonedDateTime?>(null)
 
-    var scope by mutableStateOf<CoroutineScope>(CoroutineScope(Dispatchers.Main))
-
     fun buttonClicked() {
         triggerStartTime = (if (triggerStartTime == null) ZonedDateTime.now() else null)
-        scope.cancel()
-        scope = CoroutineScope(Dispatchers.Main)
     }
 }
